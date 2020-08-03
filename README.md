@@ -6,10 +6,11 @@ Written using CMSIS register address header files for the STM32.  No external li
 Uses a priority-based preemptive scheduler to coordinate task execution.  The operating system also provides semaphores as well as messaging and a FIFO queue for interprocess communication.
 
 Project includes drivers for:
-* USART2 (with and without DMA TX)
-* USART1 (with DMA RX)
 * Gyroscope
 * Accelerometer
+* USART2 (with and without DMA TX)
+* USART1 (with DMA RX)
+* ADC
 * I2C
 * SPI
 
