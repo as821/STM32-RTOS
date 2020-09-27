@@ -1,29 +1,24 @@
 /*
  *  osKernel.c      Kernel implementation file
  *  Implement kernel functions
+ *  Created by Andrew Stange
  */
 
 /*
  *  Preprocessor Directives
  */
 #include "osKernel.h"
-#define SYSPRI3             (*((volatile uint32_t *)0xE000ED20))        // SysTick priority register
-#define ICSR                (*((volatile uint32_t *)0xE000ED04))        // Interrupt controller
-#define NULL                (void*)0
+#define SYSPRI3         (*((volatile uint32_t *)0xE000ED20))        // SysTick priority register
+#define ICSR         (*((volatile uint32_t *)0xE000ED04))        // Interrupt controller
 
-// user configurations
-#define NUM_OF_THREADS      4
-#define NUM_PERIODIC_TASKS  5
-#define STACKSIZE           3750
-#define PERIOD_STACK_SIZE   500
-#define BUS_FREQ		    16000000
+
 
 
 /*
  *  Struct Definitions
  */
 // Thread Control Block
-struct tcb {
+struct tcb{
     int32_t *stackPt;
     struct tcb *nextPt;
     uint32_t sleepTime;
@@ -31,17 +26,32 @@ struct tcb {
     uint32_t priority;
 };
 
+// Periodic Task Control Block
+typedef void(*taskT)(void);
+typedef struct{
+    taskT task;
+    uint32_t period;
+    uint32_t  timeLeft;
+} tcb_periodic;
+
+
 
 /*
  * Global Variables
  */
 
 // thread control variables
+uint32_t MILLIS_PRESCALER;                              // number of clock cycles per ms.  Dependent on BUS_FREQ
 typedef struct tcb tcbType;
 tcbType tcbs[NUM_OF_THREADS];                           // array of threads
 int32_t TCB_STACK[NUM_OF_THREADS][STACKSIZE];           // main memory --> each thread gets an individual stack
 tcbType *currentPt;                                     // currently running thread
 int8_t current_reset = 0;                               // 1 to set currentPt->stackPt to NULL (ready for another task)
+
+tcbType periodic_tcb;
+int32_t PERIODIC_STACK[PERIOD_STACK_SIZE];
+
+
 
 /*
  *  Helper Function Declarations
@@ -80,17 +90,18 @@ void osKernelStackInit(int i) {
 
 // osKernelAddThreads       MUST CHECK RETURN VALUE
 int8_t osKernelAddThreads( void(*task)(void), uint32_t priority ) {
+    // critical section (avoid being interrupted by context switch)
 	__disable_irq();
 
 	// iterate through array of thread blocks.  Check for open block, else error  (signified by a NULL stack pointer)
     int open_block = -1;
 	for(int i = 0; i < NUM_OF_THREADS; i++) {
-        if(tcbs[i].stackPt == NULL) {     // find first open thread block
+        if( tcbs[i].stackPt == NULL ) {     // find first open thread block
             open_block = i;
             break;
         }
     }
-	if(open_block == -1) {        // no open blocks, return error
+	if( open_block == -1 ) {        // no open blocks, return error
 	    return -1;
 	}
 
@@ -203,7 +214,7 @@ void osPriorityScheduler(void) {
   	uint8_t highestPriorityFound = 255;         // min priority
 
   	// if currentPt has just terminated (reset boolean is set), set stackPt to NULL
-  	if(current_reset == 1) {
+  	if( current_reset == 1 ) {
   	    currentPt->stackPt = NULL;              // mark this thread block as available again
   	    current_reset = 0;
   	}
@@ -248,22 +259,31 @@ void osReturnHandler(void) {
 
 
 
-
+// My debugger is a POS and will only allow viewing of global variables when in hard fault
 // HardFault_Handler
 #define ACCESS(address)      *((volatile unsigned int*)(address))
+// system control block
 uint32_t hfsr = 0;			// see pg 669 of ARM v7M manual
-uint32_t afsr = 0;
+uint32_t cfsr = 0;			// see pg 665 of ARM v7M manual
 uint8_t mmsr = 0;
 uint8_t bfsr = 0;			// see pg 667 of ARM v7M manual
+uint32_t afsr = 0;
+
+// FP + MISC
 uint32_t stir = 0;			// see pg 675 of ARM v7M manual
-uint32_t cfsr = 0;			// see pg 665 of ARM v7M manual
 uint16_t ufsr = 0;			// see pg 668 of ARM v7M manual
 uint32_t cpacr = 0;			// see pg 670 of ARM v7M manual
 uint32_t fpccr = 0;			// see pg 672 of ARM v7M manual
 uint32_t shcsr = 0;			// see pg 663 of ARM v7M manual
 uint32_t fpscr = 0;
-void HardFault_Handler(void)
-{
+
+// new
+uint32_t icsr = 0;          // see pg 227 of Cortex M4 generic user guide
+uint32_t cpuid = 0;
+uint32_t shpr1 = 0;
+uint32_t shpr2 = 0;
+uint32_t shpr3 = 0;
+void HardFault_Handler(void) {
     // log register values, viewable in debugger (ASM below trigger breakpoint)
     hfsr = ACCESS(0xE000ED2C);
     afsr = ACCESS(0xE000ED3C);
@@ -277,17 +297,14 @@ void HardFault_Handler(void)
     shcsr = ACCESS(0xE000ED24);
     fpscr = __get_FPSCR();
 
-    USART2_Init_Poll();
+    icsr = ACCESS(0xE000ED04);          // see pg 227 of Cortex M4 generic user guide
+    cpuid = ACCESS(0xE000ED00);
+    shpr1 = ACCESS(0xE000ED18);
+    shpr2 = ACCESS(0xE000ED1C);
+    shpr3 = ACCESS(0xE000ED20);
 
-    // __ASM volatile("BKPT #01");
-    int counter = 0;
+    // __ASM volatile("BKPT #01");      // uncomment to trigger debugger breakpoint automatically here
     while(1) {
-        USART2_write('H');
-        USART2_write('A');
-        USART2_write('R');
-        USART2_write('D');
-        USART2_write('\r');
-        USART2_write('\n');
     }
 }       // END HardFault_Handler
 

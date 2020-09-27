@@ -1,12 +1,11 @@
 /*
  *  uart.c      UART function implementation
- *  UART driver and STDIO overriding  (RX PA2, TX PA3)
+ *  UART driver and STDIO overriding (commented out at bottom of file)
+ *  Created by Andrew Stange
  */
 
 
-
 #include "osKernel.h"
-
 
 // USART2_Init
 void USART2_Init_Poll(void) {
@@ -41,7 +40,6 @@ int USART2_write(int ch) {
 
 
 
-
 // USART2_read
 int USART2_read(void) {
     // wait for RX buffer to have something in it
@@ -50,12 +48,6 @@ int USART2_read(void) {
     }
     return USART2->DR;
 }   // END USART2_read
-
-
-
-
-
-
 
 
 
@@ -81,9 +73,6 @@ int USART2_read(void) {
 //int fputc(int ch, FILE* f) {
 //    return USART1_write(ch);
 //}   // END fputc
-
-
-
 
 
 
