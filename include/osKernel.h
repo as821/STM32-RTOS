@@ -30,6 +30,7 @@
 #define PERIOD_STACK_SIZE       500
 #define	QUANTA	                15
 #define MAG_ORIENT              1000
+#define FIFO_SIZE               5
 
 
 
