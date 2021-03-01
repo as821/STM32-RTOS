@@ -18,3 +18,8 @@ Project includes drivers for:
 Written to support quadcopter flight control software on the STM32F411VET6.  OS code size is about 70KB, CMSIS header files take up ~750KB.  Size of OS when running depends entirely on the number of threads and the stack size.
 
 
+NOTE: code style is still a bit rough around the edges, since this is just a snapshot mid-development.  From around this point, I forked off to work on quadcopter specific stuff (stabilization, motor control, bluetooth connection to controller, etc.) without significant changes to the OS code.  Although not the cleanest, the code here is pretty short and straightforward.  At some point, I plan to switch over to using the CMSIS defined constants more consistently throughout the code. 
+
+Honestly, haven't had time to work on this due to graduate school applications, etc.  This summer maybe??  Either way,  this is my first significant foray into the world of bare metal embedded OS, enjoy :)
+
+

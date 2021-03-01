@@ -12,8 +12,6 @@
 #define ICSR         (*((volatile uint32_t *)0xE000ED04))        // Interrupt controller
 
 
-
-
 /*
  *  Struct Definitions
  */
@@ -25,15 +23,6 @@ struct tcb{
     uint32_t blocked;
     uint32_t priority;
 };
-
-// Periodic Task Control Block
-typedef void(*taskT)(void);
-typedef struct{
-    taskT task;
-    uint32_t period;
-    uint32_t  timeLeft;
-} tcb_periodic;
-
 
 
 /*
@@ -50,7 +39,6 @@ int8_t current_reset = 0;                               // 1 to set currentPt->s
 
 tcbType periodic_tcb;
 int32_t PERIODIC_STACK[PERIOD_STACK_SIZE];
-
 
 
 /*

@@ -3,9 +3,39 @@
 
 #include "osKernel.h"
 
+
+void pwm_task();
+void uart_print();
+
+// main function
+int main(void) {
+    // kernel initialization
+    osKernelInit();
+
+    // task specific initializations
+    BSP_LED_Init();
+    gyroInit();
+    accelerometer_init();        // calls magnetometer init
+
+    // for my personal development of this OS for controlling a quadcopter with PWM motors, need to comment out
+    // USART2 usage and enable TIM9 (see pwm.c) in order to support all motors. (USART2 and TIM9 share PA2 pin)
+    // this should definitely use a flag, but haven't gotten to that yet
+    USART2_Init();
+
+    // task initialization (!! should be checking Add Threads error conditions !!)
+    osKernelAddThreads(&pwm_task, 1);
+    osKernelAddThreads(&uart_print, 1);
+
+    // launch kernel (and tasks)
+    osKernelLaunch();
+}   // END main
+
+
+
+
 // PWM task
 long counter1 = 0;
-void pwm_task(void) {
+void pwm_task() {
     while(1) {
        counter1++;
        if(counter1 % 15 == 0) {
@@ -19,7 +49,7 @@ void pwm_task(void) {
 
 
 // uart_print
-void uart_print(void) {
+void uart_print() {
     USART2_send_str("hello world");
 
     while (1) {
@@ -28,36 +58,3 @@ void uart_print(void) {
         osThreadYield();
     }
 }   // END uart_print
-
-
-
-
-
-// main function
-int main(void) {
-   // kernel initialization
-   osKernelInit();
-
-   // task specific initializations
-   BSP_LED_Init();
-   gyroInit();
-   accelerometer_init();        // calls magnetometer init
-
-   /*
-    * Once done with debugging, remove this USART2_Init and any USART2 function usage.  Uncomment TIM9 GPIO set up and
-    * TIM9 set up in pwm as well (USART2 and TIM9 share PA2)
-    */
-   USART2_Init();
-
-
-   // task initialization (!! should be checking Add Threads error conditions !!)
-   osKernelAddThreads(&pwm_task, 1);
-   osKernelAddThreads(&uart_print, 1);
-
-   // launch kernel (and tasks)
-   osKernelLaunch();
-}   // END main
-
-
-
-
