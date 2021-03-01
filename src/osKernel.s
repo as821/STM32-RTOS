@@ -1,6 +1,7 @@
 ;
 ;  osKernel.s      Kernel assembly file
 ;  Implement fast context switching in assembly
+;  Created by Andrew Stange
 ;
 			AREA |.text|,CODE,READONLY,ALIGN=2
 			THUMB

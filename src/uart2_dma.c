@@ -1,12 +1,20 @@
 /*
  *  uart_dma.c      UART-DMA function implementation
- *  UART DMA driver  (TX PA2, RX PA3)
+ *  UART DMA driver
+ *  Created by Andrew Stange
  */
+
+
+//  DMA Notes (from Memory-->Peripheral perspective)
+//      SxPAR register holds peripheral data register
+//      SxMOAR holds memory address of data to transfer
+//      SxNDTR holds number of data items to transfer
+//      SxCR to specify M-P communication, mem pointer increment, channel selection, and stream priority
 
 
 #include "osKernel.h"
 
-#define BASE_10  10
+
 volatile int uart_unavailable = 0;
 unsigned char uart_dma_buffer[MAX_UART_DMA_BUFFER];
 
@@ -157,7 +165,8 @@ void USART2_send_str(char* str) {
 
 
 // USART2_send_integer
-void USART2_send_integer(short value) {
+#define BASE_10  10
+void USART2_send_int(short value) {
     // Convert the number to string
     char valueAsString[12];
     int_to_str(value, valueAsString, BASE_10);

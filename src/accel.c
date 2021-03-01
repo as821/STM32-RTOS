@@ -1,6 +1,7 @@
 /*
  *  accel.c      Accelerometer Driver
  *  LSM303DLHC Accelerometer driver over I2C
+ *  Created by Andrew Stange
  */
 
 
@@ -9,6 +10,7 @@
 #define ACCELEROMETER_WRITE 0x32
 
 #include "osKernel.h"
+
 
 // I2C1_restart
 void I2C1_restart (void) {
@@ -62,6 +64,27 @@ void I2C1_send_slave_addr (unsigned short addr) {
 
 
 
+// I2C1_send_slave_addr
+void I2C1_send_slave_addr_adjust (unsigned short addr) {
+    // pg 497, STM32F411 ref manual
+    // wait for a start condition
+    while( (I2C1->SR1 & 1) == 0 );
+
+    // load slave address into data register, to be transmitted
+    I2C1->DR = addr;
+
+    // pg 497, STM32F411 ref manual
+    // wait for end of address transmission (from master POV)
+    while( (I2C1->SR1 & (1 << 1)) == 0 );
+
+    // pg 478, after reading address flag in SR1, read SR1 and SR2
+    I2C1->SR1;
+    I2C1->SR2;
+}   // END I2C1_send_slave_addr_adjust
+
+
+
+
 // I2C1_send_reg
 void I2C1_send_reg (unsigned short addr) {
     // pg 497, STM32F411 ref manual
@@ -82,7 +105,7 @@ void I2C1_send_reg (unsigned short addr) {
 // I2C1_busy_wait
 void I2C1_busy_wait (void) {
     // pg 500, STM32F411 ref manual
-    // wait while busy is busy
+    // wait while bus is busy
     while( (I2C1->SR2 & (1 << 1)) == (1 << 1) );
 }   // END I2C1_busy_wait
 
@@ -129,6 +152,9 @@ unsigned char accelerometer_read (unsigned short addr) {
 
     return I2C1_get_data();
 }   // END accelerometer_read
+
+
+
 
 
 
@@ -217,16 +243,67 @@ void accelerometer_init (void) {
     // pg 24, LSM303DLHC datasheet. CTRL_REG1_A is at address 0x20.
     // set CTRL_REG1_A to 0x47 to configure normal/low-power (50 MHz) and enable X, Y, Z axes
     accelerometer_write(0x20, 0x47);
+
+    // set up magnetometer here
+    // set CRA_REG_M data output to b110 (75 Hz min sample freq) --> b10011000 = 0x98
+    //                                                               b10011100 = 0x9C
+    // 0x00, reset value: 0x08
+    magnetometer_write(0x00, 0x9C);
+
+    // set CRB_REG_M gain bits to b111 (+/-8.1 gauss --> gain XYZ (230) gain z (205) --> b1110 0000 = 0xE0
+    // output range: -2048 to 2047
+    // 0x01, reset value: 0x10
+    magnetometer_write(0x01, 0xE0);
+
+    // orient magnetometer
+    mag_init();
 }   // END accelerometer_init
 
 
-
 // accelGetValues
-void accelGetValues(int16_t* x, int16_t* y, int16_t* z) {
-    *x = (accelerometer_read(0x29) << 8 | accelerometer_read(0x28));
-    *y = (accelerometer_read(0x2B) << 8 | accelerometer_read(0x2A));
-    *z = (accelerometer_read(0x2D) << 8 | accelerometer_read(0x2C));
+void accelGetValues(short* x, short* y, short* z) {
+    // fill x
+    *x = accelerometer_read(0x29) << 8;
+    *x |= accelerometer_read(0x28);
+
+    // fill y
+    *y = accelerometer_read(0x2B) << 8;
+    *y |= accelerometer_read(0x2A);
+
+    // fill z
+    *z = accelerometer_read(0x2D) << 8;
+    *z |= accelerometer_read(0x2C);
 }   // END accelGetValues
+
+
+// https://www.hobbytronics.co.uk/accelerometer-info#:~:text=Measuring%20Tilt%20Angle%20using%20One,one%20axis%20of%20the%20accelerometer.
+void accel_xy_calc(double x_val, double y_val, double z_val, double* roll, double* pitch) {
+    // Using x, y, and z from accelerometer, calculate roll and pitch angles (in degrees)
+    *roll  = (atan2(-y_val, z_val) * 180.0) / PI;
+    *pitch = (atan2(x_val, sqrt(y_val * y_val + z_val * z_val)) * 180.0) / PI;
+}   // END accel_xy_calc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

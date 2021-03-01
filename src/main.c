@@ -1,73 +1,63 @@
-/*
- *  main.c      Main function
- *  Initialize and start the kernel
- */
+
 
 
 #include "osKernel.h"
 
+// PWM task
+long counter1 = 0;
+void pwm_task(void) {
+    while(1) {
+       counter1++;
+       if(counter1 % 15 == 0) {
+           counter1 = 0;
+           BSP_LED_orangeToggle();
+       }
+       osThreadYield();
+   }
+}   // END pwm_task
 
+
+
+// uart_print
 void uart_print(void) {
-    USART2_send_str("Hello world!\r\n");
-    int16_t g_x, g_y, g_z;
-    int16_t a_x, a_y, a_z;
+    USART2_send_str("hello world");
+
     while (1) {
         BSP_LED_greenToggle();
-        gyroGetValues(&g_x, &g_y, &g_z);
-        accelGetValues(&a_x, &a_y, &a_z);
-
-        // gyro output
-        USART2_send_str("g_x: ");
-        USART2_send_int(g_x);
-        USART2_send_str("\tg_y: ");
-        USART2_send_int(g_y);
-        USART2_send_str("\tg_z: ");
-        USART2_send_int(g_z);
-        USART2_send_str("\r\n");
-
-        // accelerometer output
-        USART2_send_str("a_x: ");
-        USART2_send_int(a_x);
-        USART2_send_str("\ta_y: ");
-        USART2_send_int(a_y);
-        USART2_send_str("\ta_z: ");
-        USART2_send_int(a_z);
-        USART2_send_str("\r\n");
-        USART2_send_str("\r\n");
+        busy_wait(1);       // in seconds
         osThreadYield();
     }
-}
+}   // END uart_print
 
 
-
-
-void LED_task(void) {
-    while(1) {
-        BSP_LED_blueToggle();
-        BSP_LED_orangeToggle();
-        BSP_LED_redToggle();
-        osThreadYield();
-    }
-}
 
 
 
 // main function
 int main(void) {
-    // kernel initialization
-    osKernelInit();
+   // kernel initialization
+   osKernelInit();
 
-    // task specific initializations
-    BSP_LED_Init();
-    USART2_Init();
-    gyroInit();
-    accelerometer_init();
+   // task specific initializations
+   BSP_LED_Init();
+   gyroInit();
+   accelerometer_init();        // calls magnetometer init
 
-    // task initialization
-    osKernelAddThreads(&LED_task, 1);
-    osKernelAddThreads(&uart_print, 1);
-    osKernelLaunch();
+   /*
+    * Once done with debugging, remove this USART2_Init and any USART2 function usage.  Uncomment TIM9 GPIO set up and
+    * TIM9 set up in pwm as well (USART2 and TIM9 share PA2)
+    */
+   USART2_Init();
+
+
+   // task initialization (!! should be checking Add Threads error conditions !!)
+   osKernelAddThreads(&pwm_task, 1);
+   osKernelAddThreads(&uart_print, 1);
+
+   // launch kernel (and tasks)
+   osKernelLaunch();
 }   // END main
+
 
 
 
