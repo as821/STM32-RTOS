@@ -1,7 +1,7 @@
 # STM32-RTOS
 A Mininal Real Time Operating System for the STM32F411
 
-Written in C using CMSIS register address header files for the STM32.  No external libraries or HAL are used.  All memory allocated statically.
+Written in C using CMSIS register address header files for the STM32.  No C stdlib or HAL are used.  All memory allocated statically.
 
 Uses a priority-based preemptive scheduler to coordinate task execution.  The operating system also provides semaphores, a mailbox, and a FIFO queue for interprocess communication.
 
@@ -15,11 +15,18 @@ Project includes drivers for:
 * I2C
 * SPI
 
-Written to support quadcopter flight control software on the STM32F411VET6.  OS code size is about 70KB, CMSIS header files take up ~750KB.  Size of OS when running depends entirely on the number of threads and the stack size.
+Written to support quadcopter flight control software on the STM32F411VET6.  I am in the process of switching the context switching code from legacy ARM syntax assembly to GNU syntax assembly. 
+
+NOTE: the code style in this repo is a little rough around the edges since this is a mid-development snapshot.  This is the state of the OS code when I forked off to work on quadcopter specific code (stabilization, motor control, bluetooth connection to controller, etc.).  Due to graduate school applications, etc. I have not had as much time to work on this in the past year but I am making some edits here and there as I have time.
+
+Either way,  this is my first significant foray into the world of bare metal embedded OS, enjoy :)
 
 
-NOTE: code style is still a bit rough around the edges, since this is just a snapshot mid-development.  From around this point, I forked off to work on quadcopter specific stuff (stabilization, motor control, bluetooth connection to controller, etc.) without significant changes to the OS code.  Although not the cleanest, the code here is pretty short and straightforward.  At some point, I plan to switch over to using the CMSIS defined constants more consistently throughout the code. 
 
-Honestly, haven't had time to work on this due to graduate school applications, etc.  This summer maybe??  Either way,  this is my first significant foray into the world of bare metal embedded OS, enjoy :)
 
+TODO:
+* Add a check for saving FPU state in the context switch assembly code
+* Add an "isb" command when exiting ISRs so pipline is flushed before execution leaves the function
+* Translate ARM assembly syntax into GNU assembly syntax so code compiles with GNU tools rather than just with Keil IDE.
+* Use a different data structure/algorithm for the priority scheduler to speed up context switches.
 

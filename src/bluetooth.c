@@ -17,7 +17,7 @@
 
 
 
-#include "osKernel.h"
+#include "kernel.h"
 volatile int uart1_unavailable = 0;
 
 
@@ -43,7 +43,7 @@ void USART1_Init_Poll(void) {
 int USART1_write(int ch) {
     // wait for TX buffer to be empty before writing
     while(!(USART1->SR & 0x0080)) {
-        osThreadYield();
+        threadYield();
     }
 
     // write ch to the data register
@@ -57,7 +57,7 @@ int USART1_write(int ch) {
 int USART1_read(void) {
     // wait for RX buffer to have something in it
     while(!(USART1->SR & 0x0020) ) {
-        osThreadYield();
+        threadYield();
     }
     return USART1->DR;
 }   // END USART1_read
@@ -71,7 +71,7 @@ void USART1_send_str(char* buf) {
     __disable_irq();
     while(uart1_unavailable == 1) {
         __enable_irq();
-        osThreadYield();
+        threadYield();
         __disable_irq();
     };
     uart1_unavailable = 1;

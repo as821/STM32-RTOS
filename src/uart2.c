@@ -5,7 +5,7 @@
  */
 
 
-#include "osKernel.h"
+#include "kernel.h"
 
 // USART2_Init
 void USART2_Init_Poll(void) {
@@ -29,7 +29,7 @@ void USART2_Init_Poll(void) {
 int USART2_write(int ch) {
     // wait for TX buffer to be empty before writing
     while(!(USART2->SR & 0x0080)) {
-        osThreadYield();
+        threadYield();
     }
 
     // write ch to the data register
@@ -44,7 +44,7 @@ int USART2_write(int ch) {
 int USART2_read(void) {
     // wait for RX buffer to have something in it
     while(!(USART2->SR & 0x0020) ) {
-        osThreadYield();
+        threadYield();
     }
     return USART2->DR;
 }   // END USART2_read

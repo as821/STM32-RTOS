@@ -1,5 +1,5 @@
 /*
- *  osKernel.c      Kernel implementation file
+ *  kernel.c      Kernel implementation file
  *  Implement kernel functions
  *  Created by Andrew Stange
  */
@@ -7,7 +7,7 @@
 /*
  *  Preprocessor Directives
  */
-#include "osKernel.h"
+#include "kernel.h"
 #define SYSPRI3         (*((volatile uint32_t *)0xE000ED20))        // SysTick priority register
 #define ICSR         (*((volatile uint32_t *)0xE000ED04))        // Interrupt controller
 
@@ -44,20 +44,20 @@ int32_t PERIODIC_STACK[PERIOD_STACK_SIZE];
 /*
  *  Helper Function Declarations
  */
-void osSchedulerLaunch(void);
+void schedulerLaunch(void);
 
 
 /*
  *  Function Definitions
  */
 
-// osKernelStackInit
-void osKernelStackInit(int i) {
+// kernelStackInit
+void kernelStackInit(int i) {
     // set up stack for the given thread.  Fill stack with gibberish pattern and set TCB stack pointer
     tcbs[i].stackPt =  &TCB_STACK[i][STACKSIZE -16];    // set SP to top of stack
     TCB_STACK[i][STACKSIZE -1] =  0x01000000;           // set xPSR register (set bit 24 high to indicate Thumb ISA)
 	                                                    // do not set PC (filled in by add threads function)
-    TCB_STACK[i][STACKSIZE-3] = (int32_t) osReturnHandler;  // set LR to return handler (remove task from scheduler)
+    TCB_STACK[i][STACKSIZE-3] = (int32_t) returnHandler;  // set LR to return handler (remove task from scheduler)
     TCB_STACK[i][STACKSIZE-4] = 0x12121212;             // R12
     TCB_STACK[i][STACKSIZE-5] = 0x03030303;             // R3
     TCB_STACK[i][STACKSIZE-6] = 0x02020202;             // R2
@@ -71,13 +71,13 @@ void osKernelStackInit(int i) {
     TCB_STACK[i][STACKSIZE-14] = 0x06060606;            // R6
     TCB_STACK[i][STACKSIZE-15] = 0x05050505;            // R5
     TCB_STACK[i][STACKSIZE-16] = 0x04040404;            // R4
-}   // END osKernelStacKInit
+}   // END kernelStacKInit
 
 
 
 
-// osKernelAddThreads       MUST CHECK RETURN VALUE
-int8_t osKernelAddThreads( void(*task)(void), uint32_t priority ) {
+// kernelAddThreads       MUST CHECK RETURN VALUE
+int8_t kernelAddThreads( void(*task)(void), uint32_t priority ) {
     // critical section (avoid being interrupted by context switch)
 	__disable_irq();
 
@@ -94,7 +94,7 @@ int8_t osKernelAddThreads( void(*task)(void), uint32_t priority ) {
 	}
 
 	// initialize stack (sets stack pointer to appropriate address)
-	osKernelStackInit(open_block);
+	kernelStackInit(open_block);
 
 	// unblock thread, set priority, and set sleep time to 0    (set all members of TCB to avoid random values)
     tcbs[open_block].blocked = 0;
@@ -107,20 +107,20 @@ int8_t osKernelAddThreads( void(*task)(void), uint32_t priority ) {
 
     // successful function execution
 	return 1;
-}   // END osKernelAddThreads
+}   // END kernelAddThreads
 
 
 
 
 
-// osKernelInit
-void osKernelInit(void) {
+// kernelInit
+void kernelInit(void) {
     // prescalar for milliseconds, given the bus frequency (MHz --> milliseconds)
     MILLIS_PRESCALER = (BUS_FREQ/1000);
 
     // Frequency options :  1hz, 10hz, 100hz, 1KHz,10KHz, 100KHz
     // freq --> number of times/second to run the task
-    // osPeriodicTask_Init(periodic_events_execute, 5);
+    // periodicTask_Init(periodic_events_execute, 5);
 
     // set all threads as uninitialized and make tcbs array a circular buffer (link last task to first one)
     for(int i = 0; i < NUM_OF_THREADS; i++) {
@@ -149,13 +149,13 @@ void osKernelInit(void) {
     // enable FPU through CPACR
     SCB->CPACR |= (3UL << 2*10) | (3UL << 2*11);
     // CPACR_CP_Msk_(11) | CPACR_CP_Msk_(10);		// will not compile this way
-}   // END osKernelInit
+}   // END kernelInit
 
 
 
 
-// osKernelLaunch
-void osKernelLaunch() {
+// kernelLaunch
+void kernelLaunch() {
     // SysTick set up
     SysTick->CTRL &= ~(1);                             // disable SysTick
     SysTick->VAL  = 0;                                 // reset SysTick counter
@@ -166,13 +166,13 @@ void osKernelLaunch() {
     SYSPRI3 = (SYSPRI3 & 0xFF00FFFF) | 0x00080000;		// set PendSV priority to 8
 
     // launch scheduler
-    osSchedulerLaunch();
-}   // END osKernelLaunch
+    schedulerLaunch();
+}   // END kernelLaunch
 
 
 
-// osThreadYield
-void osThreadYield(void){
+// threadYield
+void threadYield(void){
     __disable_irq();
     SysTick->CTRL &= ~(1);                             // disable SysTick
     SysTick->VAL  = 0;                                 // reset SysTick counter
@@ -181,7 +181,7 @@ void osThreadYield(void){
     __enable_irq();
 
     ICSR |= 0x04000000;       // trigger SysTick (pg 655, ARM v7M ref manual)
-}   // END osThreadYield
+}   // END threadYield
 
 
 
@@ -194,8 +194,8 @@ void SysTick_Handler(void){
 
 
 
-// osPriorityScheduler
-void osPriorityScheduler(void) {
+// priorityScheduler
+void priorityScheduler(void) {
     // This function is called from the PendSV_Handler (in assembly).  Set currentPt to the next thread to run set up
     tcbType* thread_ptr = currentPt;            // used to iterate through buffer of thread blocks
   	tcbType* nextThreadToRun = thread_ptr;
@@ -220,7 +220,7 @@ void osPriorityScheduler(void) {
     currentPt = nextThreadToRun;
 
   	// return to PendSV handler in order to complete context switch
-}   // END osPriorityScheduler
+}   // END priorityScheduler
 
 
 
@@ -229,25 +229,24 @@ void osPriorityScheduler(void) {
 
 
 
-// osReturnHandler
-void osReturnHandler(void) {
+// returnHandler
+void returnHandler(void) {
     // reset current task to empty defaults
     currentPt->blocked = 1;        // block thread
     currentPt->priority = 255;     // set to lowest priority
 
     // mark this thread block for removal.  stackPt set to NULL by scheduler to avoid issues with
-    // having a NULL stack to save state to in the context switch following osThreadYield call
+    // having a NULL stack to save state to in the context switch following threadYield call
     current_reset = 1;
 
-    // yield rest of quanta to scheduler (this task will be ignored
-    osThreadYield();
-}   // END osReturnHandler
+    // yield rest of quanta to scheduler (this task will be ignored)
+    threadYield();
+}   // END returnHandler
 
 
 
 
 
-// My debugger is a POS and will only allow viewing of global variables when in hard fault
 // HardFault_Handler
 #define ACCESS(address)      *((volatile unsigned int*)(address))
 // system control block

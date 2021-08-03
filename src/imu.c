@@ -4,7 +4,7 @@
  *  Created by Andrew Stange
  */
 
-#include "osKernel.h"
+#include "kernel.h"
 
 
 // SPI1_RX_wait

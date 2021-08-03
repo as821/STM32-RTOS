@@ -4,7 +4,7 @@
  *  Created by Andrew Stange
  */
 
-#include "osKernel.h"
+#include "kernel.h"
 // The following function came from
 // https://stackoverflow.com/questions/8257714/how-to-convert-an-int-to-string-in-c
 // int_to_str

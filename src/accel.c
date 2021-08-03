@@ -9,7 +9,7 @@
 #define ACCELEROMETER_READ  0x33
 #define ACCELEROMETER_WRITE 0x32
 
-#include "osKernel.h"
+#include "kernel.h"
 
 
 // I2C1_restart

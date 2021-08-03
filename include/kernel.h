@@ -1,11 +1,11 @@
 /*
- *  osKernel.h      Kernel header file
+ *  kernel.h      Kernel header file
  *  Provides interface with kernel functions for main.c
  *  Created by Andrew Stange
  */
 
-#ifndef __OS_KERNEL_H__
-#define __OS_KERNEL_H__
+#ifndef __KERNEL_H__
+#define __KERNEL_H__
 
 // header files
 #include <stdint.h>
@@ -35,14 +35,14 @@
 
 
 // Basic Kernel
-void osKernelLaunch(void);
-void osKernelInit(void);
-int8_t osKernelAddThreads( void(*task)(void), uint32_t priority );
-uint8_t osKernelAddPeriod_Thread(void (*task)(void), uint32_t period);
-void osThreadYield(void);
-void osThreadSleep(uint32_t sleep_time);
+void kernelLaunch(void);
+void kernelInit(void);
+int8_t kernelAddThreads( void(*task)(void), uint32_t priority );
+uint8_t kernelAddPeriod_Thread(void (*task)(void), uint32_t period);
+void threadYield(void);
+void threadSleep(uint32_t sleep_time);
 void busy_wait(float t);
-void osReturnHandler(void);
+void returnHandler(void);
 
 
 // UART (other UART functions are intermediaries for STDIO function)
@@ -113,9 +113,9 @@ void semaphore_set(int *semaphore);
 void semaphore_wait(int32_t *semaphore);
 
 // FIFO
-void osFifoInit(void);
-int8_t osFifoPut(uint32_t data);
-uint32_t osFifoGet(void);
+void fifoInit(void);
+int8_t fifoPut(uint32_t data);
+uint32_t fifoGet(void);
 
 
 #endif

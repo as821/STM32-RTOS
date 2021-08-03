@@ -3,7 +3,7 @@
  *  Random utilities, semaphores, mailbox, FIFO queue
  *  Created by Andrew Stange
  */
-#include "osKernel.h"
+#include "kernel.h"
 
 // buf_avg (assumes SENS_BUF_LEN)
 double buf_avg(int16_t* buf, uint16_t len) {
@@ -71,7 +71,7 @@ void semaphore_wait(int32_t *semaphore) {
     __disable_irq();
     while( *semaphore <= 0 ) {      // wait while semaphore is 0 or negative
         __enable_irq();
-        osThreadYield();
+        threadYield();
         __disable_irq();
     }
     *semaphore -= 1;           // acquire the semaphore and return

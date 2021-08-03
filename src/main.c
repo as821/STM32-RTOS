@@ -1,7 +1,7 @@
 
 
 
-#include "osKernel.h"
+#include "kernel.h"
 
 
 void pwm_task();
@@ -10,7 +10,7 @@ void uart_print();
 // main function
 int main(void) {
     // kernel initialization
-    osKernelInit();
+    kernelInit();
 
     // task specific initializations
     BSP_LED_Init();
@@ -23,11 +23,11 @@ int main(void) {
     USART2_Init();
 
     // task initialization (!! should be checking Add Threads error conditions !!)
-    osKernelAddThreads(&pwm_task, 1);
-    osKernelAddThreads(&uart_print, 1);
+    kernelAddThreads(&pwm_task, 1);
+    kernelAddThreads(&uart_print, 1);
 
     // launch kernel (and tasks)
-    osKernelLaunch();
+    kernelLaunch();
 }   // END main
 
 
@@ -42,7 +42,7 @@ void pwm_task() {
            counter1 = 0;
            BSP_LED_orangeToggle();
        }
-       osThreadYield();
+       threadYield();
    }
 }   // END pwm_task
 
@@ -55,6 +55,6 @@ void uart_print() {
     while (1) {
         BSP_LED_greenToggle();
         busy_wait(1);       // in seconds
-        osThreadYield();
+        threadYield();
     }
 }   // END uart_print

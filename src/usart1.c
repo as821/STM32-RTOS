@@ -3,7 +3,7 @@
  *  USART1 driver (DMA RX) --> Written for Bluetooth module RX
  */
 
-#include "osKernel.h"
+#include "kernel.h"
 
 // PB6  TX
 // PB7  RX
@@ -31,7 +31,7 @@ void USART1_Init(void) {
 int USART1_write(int ch) {
     // wait for TX buffer to be empty before writing
     while(!(USART1->SR & 0x0080)) {
-        osThreadYield();
+        threadYield();
     }
 
     // write ch to the data register
@@ -47,7 +47,7 @@ int USART1_write(int ch) {
 int USART1_read(void) {
     // wait for RX buffer to have something in it
     while(!(USART1->SR & 0x0020) ) {
-        osThreadYield();
+        threadYield();
     }
     return USART1->DR;
 }   // END USART1_read

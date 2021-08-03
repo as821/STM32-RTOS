@@ -12,7 +12,7 @@
 //      SxCR to specify M-P communication, mem pointer increment, channel selection, and stream priority
 
 
-#include "osKernel.h"
+#include "kernel.h"
 
 
 volatile int uart_unavailable = 0;
@@ -129,7 +129,7 @@ void USART2_send_str(char* str) {
     __disable_irq();
     while(uart_unavailable == 1) {
         __enable_irq();
-        osThreadYield();
+        threadYield();
         __disable_irq();
     };
     uart_unavailable = 1;

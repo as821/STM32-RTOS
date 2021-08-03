@@ -3,7 +3,7 @@
  *  PWM with TIM.  Originally used for controlling electric motors
  *  Created by Andrew Stange
  */
-#include "osKernel.h"
+#include "kernel.h"
 
 
 // pwm_init

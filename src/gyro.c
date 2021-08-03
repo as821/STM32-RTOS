@@ -3,7 +3,7 @@
  *  Read data from on-chip gyroscope over SPI
  */
 
-#include "osKernel.h"
+#include "kernel.h"
 
 
 // SPI1_RX_wait

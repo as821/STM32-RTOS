@@ -4,7 +4,7 @@
  *  Created by Andrew Stange
  */
 
-#include "osKernel.h"
+#include "kernel.h"
 #define MAGNETOMETER_READ  0x3D
 #define MAGNETOMETER_WRITE 0x3C
 
