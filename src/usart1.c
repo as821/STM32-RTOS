@@ -23,31 +23,3 @@ void USART1_Init(void) {
     USART1->BRR = 0x0683;			// set 9600 baud @ 16 Mhz
     USART1->CR1 |= 0x200C;          // enable TX and RX
 }   // END USART1_Init
-
-
-
-
-// USART1_write
-int USART1_write(int ch) {
-    // wait for TX buffer to be empty before writing
-    while(!(USART1->SR & 0x0080)) {
-        threadYield();
-    }
-
-    // write ch to the data register
-    USART1->DR = (ch & 0xFF);
-    return ch;
-}   // END USART1_write
-
-
-
-
-
-// USART1_read
-int USART1_read(void) {
-    // wait for RX buffer to have something in it
-    while(!(USART1->SR & 0x0020) ) {
-        threadYield();
-    }
-    return USART1->DR;
-}   // END USART1_read

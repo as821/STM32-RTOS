@@ -16,12 +16,14 @@
 // system constants
 #define MAX_UART_DMA_BUFFER     2000
 #define BUS_FREQ		        16000000
-#define NULL                    (void*) 0
 #define PI                      3.14159265
 #define TIM5_PRI                6       // priority for sensor measurement
 #define DMA1_6_PRI              10
 #define USART2_PRI              10
 #define PERIODIC_PRI            8       // needs to be the same as PendSV so periodic task cannot be preempted
+
+#define ACCELEROMETER_READ  0x33
+#define ACCELEROMETER_WRITE 0x32
 
 // system settings
 #define NUM_OF_THREADS          3
@@ -31,6 +33,9 @@
 #define	QUANTA	                15
 #define MAG_ORIENT              1000
 #define FIFO_SIZE               5
+
+#define PWM_FREQ               100             // number of times per second TIM2 will trigger
+#define PWM_PSC                10
 
 
 
@@ -107,9 +112,13 @@ void I2C1_enable_ack (void);
 void I2C1_stop (void);
 void I2C1_restart (void);
 
+// SPI
+void SPI1_RX_wait(void);
+void SPI1_TX_wait(void);
+
 // Semaphores
 void semaphore_init(int32_t *semaphore,int32_t value);
-void semaphore_set(int *semaphore);
+void semaphore_set(int32_t *semaphore);
 void semaphore_wait(int32_t *semaphore);
 
 // FIFO

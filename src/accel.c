@@ -6,9 +6,6 @@
 
 
 // see pg 21 LSM303DLHC datasheet.  R/W addresses for accelerometer
-#define ACCELEROMETER_READ  0x33
-#define ACCELEROMETER_WRITE 0x32
-
 #include "kernel.h"
 
 
@@ -276,12 +273,12 @@ void accelGetValues(short* x, short* y, short* z) {
 }   // END accelGetValues
 
 
-// https://www.hobbytronics.co.uk/accelerometer-info#:~:text=Measuring%20Tilt%20Angle%20using%20One,one%20axis%20of%20the%20accelerometer.
-void accel_xy_calc(double x_val, double y_val, double z_val, double* roll, double* pitch) {
-    // Using x, y, and z from accelerometer, calculate roll and pitch angles (in degrees)
-    *roll  = (atan2(-y_val, z_val) * 180.0) / PI;
-    *pitch = (atan2(x_val, sqrt(y_val * y_val + z_val * z_val)) * 180.0) / PI;
-}   // END accel_xy_calc
+//// https://www.hobbytronics.co.uk/accelerometer-info#:~:text=Measuring%20Tilt%20Angle%20using%20One,one%20axis%20of%20the%20accelerometer.
+//void accel_xy_calc(double x_val, double y_val, double z_val, double* roll, double* pitch) {
+//    // Using x, y, and z from accelerometer, calculate roll and pitch angles (in degrees)
+//    *roll  = (atan2(-y_val, z_val) * 180.0) / PI;
+//    *pitch = (atan2(x_val, sqrt(y_val * y_val + z_val * z_val)) * 180.0) / PI;
+//}   // END accel_xy_calc
 
 
 

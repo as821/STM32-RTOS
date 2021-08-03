@@ -6,27 +6,6 @@
 #include "kernel.h"
 
 
-// SPI1_RX_wait
-void SPI1_RX_wait(void) {
-    // pg 604, STM32F411 ref manual
-    // loop while RX buffer is empty or while SPI is busy (in communication)
-    while((SPI1->SR & 1) == 0 || (SPI1->SR & (1 << 7)) == 1) {}
-}   // END SPI1_RX_wait
-
-
-
-
-// SPI1_TX_wait
-void SPI1_TX_wait(void) {
-    // pg 604, STM32F11 ref manual
-    // loop while TX buffer is not empty or while SPI is busy (in communication)
-    while((SPI1->SR & (1 << 1)) == 0 || (SPI1->SR & (1 << 7)) == 1) {}
-}   // END SPI1_TX_wait
-
-
-
-
-
 // gyroRead
 unsigned char gyroRead(unsigned char gyroRegister) {
     // reset PE3 (CS line for gyro), set CS low to select this chip

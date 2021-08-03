@@ -202,7 +202,7 @@ void alt_i2c_init (void) {
 
     // pins set to fast speed.  Pin 8 --> bit 16/17. Pin 9 --> 18/19
     GPIOA->OSPEEDR |= (2 << 16);
-    GPIOC->OSPEEDR |= (2 << 18));
+    GPIOC->OSPEEDR |= (2 << 18);
 
     // clock enable I2C3
     RCC->APB1ENR |= (1 << 23);

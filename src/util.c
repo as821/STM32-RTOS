@@ -58,7 +58,7 @@ void semaphore_init(int32_t *semaphore,int32_t value) {
 
 
 // semaphore_set
-void semaphore_set(int *semaphore) {
+void semaphore_set(int32_t *semaphore) {
     __disable_irq();
     *semaphore += 1;       // increment semaphore value to set it as open
     __enable_irq();
@@ -130,8 +130,9 @@ uint32_t mailbox_recv(void){
 // fifo_init
 int put = 0;
 int get = 0;
+uint16_t lost_data = 0;
 int os_fifo[FIFO_SIZE];
-int current_fifo_size = 0;
+int32_t current_fifo_size = 0;
 
 void fifo_init(void) {
     __disable_irq();
@@ -179,4 +180,30 @@ int32_t fifo_get(void) {
     return data;
 }   // END fifo_get
 
+
+
+
+
+
+/*
+ *
+ *  SPI code
+ *
+ */
+// SPI1_RX_wait
+void SPI1_RX_wait(void) {
+    // pg 604, STM32F411 ref manual
+    // loop while RX buffer is empty or while SPI is busy (in communication)
+    while((SPI1->SR & 1) == 0 || (SPI1->SR & (1 << 7)) == 1) {}
+}   // END SPI1_RX_wait
+
+
+
+
+// SPI1_TX_wait
+void SPI1_TX_wait(void) {
+    // pg 604, STM32F11 ref manual
+    // loop while TX buffer is not empty or while SPI is busy (in communication)
+    while((SPI1->SR & (1 << 1)) == 0 || (SPI1->SR & (1 << 7)) == 1) {}
+}   // END SPI1_TX_wait
 
