@@ -15,7 +15,7 @@ Project includes drivers for:
 * I2C
 * SPI
 
-Written to support quadcopter flight control software on the STM32F411VET6.  I am in the process of switching the context switching code from legacy ARM syntax assembly to GNU syntax assembly. 
+Written to support quadcopter flight control software on the STM32F411VET6.
 
 NOTE: the code style in this repo is a little rough around the edges since this is a mid-development snapshot.  This is the state of the OS code when I forked off to work on quadcopter specific code (stabilization, motor control, bluetooth connection to controller, etc.).  Due to graduate school applications, etc. I have not had as much time to work on this in the past year but I am making some edits here and there as I have time.
 
@@ -27,6 +27,5 @@ Either way,  this is my first significant foray into the world of bare metal emb
 TODO:
 * Add a check for saving FPU state in the context switch assembly code
 * Add an "isb" command when exiting ISRs so pipline is flushed before execution leaves the function
-* Translate ARM assembly syntax into GNU assembly syntax so code compiles with GNU tools rather than just with Keil IDE.
 * Use a different data structure/algorithm for the priority scheduler to speed up context switches.
 
