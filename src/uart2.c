@@ -7,7 +7,7 @@
 
 #include "kernel.h"
 
-// USART2_Init
+// USART2_Init_Poll
 void USART2_Init_Poll(void) {
     // GPIO and USART clock enable
     RCC->AHB1ENR |= 1;              // clock enable GPIOA
@@ -20,7 +20,7 @@ void USART2_Init_Poll(void) {
     // set up USART2
     USART2->BRR = 0x0683;			// set 9600 baud @ 16 Mhz
     USART2->CR1 |= 0x200C;          // enable TX and RX
-}   // END USART2_Init
+}   // END USART2_Init_Poll
 
 
 

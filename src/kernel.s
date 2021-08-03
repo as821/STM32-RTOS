@@ -9,9 +9,9 @@
 //  ARM asm syntax: https://www.keil.com/support/man/docs/armasm/armasm_dom1361290000455.htm
 
 
-			//AREA |.text|,CODE,READONLY,ALIGN=2        /// TODO not sure this is correct translation
-            .section .text,"x"
-            .balign 4
+            .text                                           // .text sections are executable code sections
+            .balign 4                                       // align on 4-byte boundary
+
             .thumb
             .syntax unified
             .eabi_attribute Tag_ABI_align_preserved, 1      // PRESERVE8 in legacy ARM asm, tell assembler that we
