@@ -26,6 +26,5 @@ Either way,  this is my first significant foray into the world of bare metal emb
 
 TODO:
 * Add a check for saving FPU state in the context switch assembly code
-* Add an "isb" command when exiting ISRs so pipline is flushed before execution leaves the function
 * Use a different data structure/algorithm for the priority scheduler to speed up context switches.
 
