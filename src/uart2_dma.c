@@ -29,6 +29,8 @@ void DMA1_Stream6_IRQHandler(void) {
         // pg 551, set USART to generate interrupt when transmission complete
         USART2->CR1 |= (1 << 6);
     }
+    asm("dsb");
+    asm("isb");                     // flush pipeline to ensure IRQ actions take effect
 }   // END DMA1_Stream6_IRQHandler
 
 
@@ -45,6 +47,8 @@ void USART2_IRQHandler(void) {
         // clear flag to allow next transmission
         uart_unavailable = 0;
     }
+    asm("dsb");
+    asm("isb");                     // flush pipeline to ensure IRQ actions take effect
 }   // END USART2_IRQHandler
 
 

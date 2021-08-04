@@ -36,6 +36,8 @@ PendSV_Handler:                         // hardware saves r0,r1,r2,r3,r12,lr,pc,
 
     // determine which thread to run next
     push	  {R0,LR}
+    dsb                             // data and instruction barrier instructions
+    isb
 	bl		  priorityScheduler   // call priorityScheduler --> select next thread to run
 	pop		  {R0,LR}
 
@@ -43,6 +45,8 @@ PendSV_Handler:                         // hardware saves r0,r1,r2,r3,r12,lr,pc,
 	ldr 	  R1,[R0]               // R1 = next thread to run (determined in C scheduler function)
 	ldr 	  SP,[R1]               // set stack pointer for next thread to run
 	pop		  {R4-R11}              // restore R4-R11 from that function's stack
+	dsb                             // data and instruction barrier instructions
+    isb
 	cpsie	  I                     // enable interrupts
 	bx		  LR                    // exit function
 // END PendSV_Handler
